@@ -1,7 +1,5 @@
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.Queue;
+import javax.swing.*;
+import java.util.*;
 
 public class BuyerQueue<T> implements Queue<T> {
     protected Object[] arr;
@@ -73,7 +71,28 @@ public class BuyerQueue<T> implements Queue<T> {
 
     @Override
     public boolean add(Object o) {
-        return false;
+        arr[firstEmpty] = o;
+
+        if (++firstEmpty == firstElement){
+            resize();
+        }
+
+        return true;
+    }
+
+    private boolean resize(){
+        Object[] temp = new Object[arr.length*2];
+        for(int i = 0; i < arr.length; i++){
+            temp[i] = arr[firstElement];
+            if(++firstElement == arr.length){
+                firstElement = 0;
+            }
+        }
+        firstElement = 0;
+        firstEmpty = arr.length;
+        arr = temp;
+
+        return true;
     }
 
     @Override
@@ -83,12 +102,20 @@ public class BuyerQueue<T> implements Queue<T> {
 
     @Override
     public boolean containsAll(Collection<?> c) {
-        return false;
+        for(? t : c){
+            if(!contains(t)){
+                return false;
+            }
+        }
+        return true;
     }
 
     @Override
     public boolean addAll(Collection<? extends T> c) {
-        return false;
+        for(T t : c){
+            add(t);
+        }
+        return true;
     }
 
     @Override
@@ -103,32 +130,58 @@ public class BuyerQueue<T> implements Queue<T> {
 
     @Override
     public void clear() {
-
+        firstEmpty = 0;
+        firstElement = 0;
     }
 
     @Override
     public boolean offer(Object o) {
-        return false;
+        arr[firstEmpty] = o;
+
+        if (++firstEmpty == firstElement){
+            resize();
+        }
+
+        return true;
     }
 
     @Override
-    public Object remove() {
-        return null;
+    public T remove() {
+        if (isEmpty()) { throw new NoSuchElementException(); }
+
+        Object temp = arr[firstElement];
+
+        if(++firstElement == arr.length){
+            firstElement = 0;
+        }
+
+
+        return (T)temp;
     }
 
     @Override
-    public Object poll() {
-        return null;
+    public T poll() {
+        if (isEmpty()) { return null; }
+
+        Object temp = arr[firstElement];
+
+        if(++firstElement == arr.length){
+            firstElement = 0;
+        }
+
+        return (T)temp;
     }
 
     @Override
-    public Object element() {
-        return null;
+    public T element() {
+        if (isEmpty()) { throw new NoSuchElementException(); }
+        return (T)arr[firstElement];
     }
 
     @Override
-    public Object peek() {
-        return null;
+    public T peek() {
+        if (isEmpty()) { return null; }
+        return (T)arr[firstElement];
     }
 
 }
