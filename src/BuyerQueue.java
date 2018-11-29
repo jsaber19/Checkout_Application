@@ -50,7 +50,28 @@ public class BuyerQueue<T> implements Queue<T> {
 
     @Override
     public Iterator<T> iterator() {
-        return null;
+
+        class QueueIterator<T> implements Iterator<T>{
+            private BuyerQueue<T> queue;
+            private int index = 0;
+
+            public QueueIterator(BuyerQueue<T> queue){
+                this.queue = queue;
+            }
+
+            @Override
+            public boolean hasNext() {
+                if (index + 1 >= queue.size()) { return false; }
+                return true;
+            }
+
+            @Override
+            public T next() {
+                return queue.remove();
+            }
+        }
+
+        return new QueueIterator<T>(this);
     }
 
     @Override
@@ -102,8 +123,9 @@ public class BuyerQueue<T> implements Queue<T> {
 
     @Override
     public boolean containsAll(Collection<?> c) {
-        for(? t : c){
-            if(!contains(t)){
+        Iterator i = c.iterator();
+        while(i.hasNext()){
+            if(!contains(i.next())){
                 return false;
             }
         }
@@ -185,3 +207,5 @@ public class BuyerQueue<T> implements Queue<T> {
     }
 
 }
+
+
