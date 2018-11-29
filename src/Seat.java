@@ -14,7 +14,7 @@ public class Seat {
     }
 
     public boolean getAvailable(){ return available; }
-    
+
     public String getRow() { return row; }
 
     public int getColumn() { return column; }
