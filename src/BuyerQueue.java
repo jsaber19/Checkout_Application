@@ -1,6 +1,7 @@
 import javax.swing.*;
 import java.util.*;
 
+// class that represents a queue of buyers
 public class BuyerQueue<T> implements Queue<T> {
     protected Object[] arr;
     protected boolean isFull;
@@ -15,13 +16,14 @@ public class BuyerQueue<T> implements Queue<T> {
         firstElement = 0;
         isFull = false;
     }
-
     public BuyerQueue(int initialSize){
         arr = new Object[initialSize];
         firstEmpty = 0;
         firstElement = 0;
         isFull = false;
     }
+
+    // Queue implementation methods
 
     @Override
     public int size() {
@@ -51,6 +53,7 @@ public class BuyerQueue<T> implements Queue<T> {
     @Override
     public Iterator<T> iterator() {
 
+        // nested class for an iterator object
         class QueueIterator<T> implements Iterator<T>{
             private BuyerQueue<T> queue;
             private int index = 0;
@@ -80,7 +83,7 @@ public class BuyerQueue<T> implements Queue<T> {
         int j = firstElement;
         for(int i = 0; i < size(); i++){
             temp[i] = arr[j++];
-            if(j >= arr.length){j = 0;}
+            if(j >= arr.length){j = 0;} // to reorder since we used ring buffer
         }
         return temp;
     }
@@ -93,11 +96,9 @@ public class BuyerQueue<T> implements Queue<T> {
     @Override
     public boolean add(Object o) {
         arr[firstEmpty] = o;
-
         if (++firstEmpty == firstElement){
             resize();
         }
-
         return true;
     }
 
@@ -176,7 +177,6 @@ public class BuyerQueue<T> implements Queue<T> {
         if(++firstElement == arr.length){
             firstElement = 0;
         }
-
 
         return (T)temp;
     }
