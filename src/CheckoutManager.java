@@ -1,6 +1,7 @@
 public class CheckoutManager {
     private BuyerQueue<Session> normalQ;
     private BuyerQueue<Session> VIPQ;
+    private BuyerQueue<Session> transactionQ;
     private Seat[][] seats;
 
     public CheckoutManager(){
@@ -27,7 +28,7 @@ public class CheckoutManager {
     }
 
     public boolean add(Session sessionId){
-        if (sessionId.getStatus().equals("VIP")){
+        if (sessionId.getIsVIP()){
             VIPQ.add(sessionId);
         }
         normalQ.add(sessionId);
@@ -35,12 +36,28 @@ public class CheckoutManager {
     }
 
     public boolean completePurchase(Session sessionId, String seat){
-
+        return true;
     }
 
     public Seat[][] getSeats(){
         return seats;
         //TODO: graphics that shows table with availability - grey/white/red/green
     }
+
+    public boolean isFull(){
+        for (Seat[] arr : seats){
+            for (Seat s : arr){
+                if (s.getAvailable()) return false;
+            }
+        }
+        return true;
+    }
+
+    public boolean reserveSeat(){
+        return true;
+    }
+
+    // TODO: main class with main app window that will open session windows through some button – will also take care of reserving seats
+    // TODO: while loop for session making button in main class whose condition for running is that there are still available seats
 
 }
