@@ -80,27 +80,36 @@ public class MainApplication extends Application {
                         newSeat.setTextOverrun(OverrunStyle.CLIP);
                         newSeat.setText("" + manager.getSeats()[i][j].getRow() + manager.getSeats()[i][j].getColumn());
                         newSeat.setPrefSize(50, 25);
-                        gp.add(newSeat, manager.getSeats()[i][j].getColumn(), manager.getSeats()[i][j].getRowNumericalRepresentation());
-                        //TODO need to color buttons
 
-                        // any seat will take you to a checkout window and automatically reserve it
-                        newSeat.setOnAction(new EventHandler<ActionEvent>() {
-                            @Override
-                            public void handle(ActionEvent event) {
-                                try {
-                                    stage.setScene(checkOut);
-                                    manager.getSession(Integer.valueOf(ID.getText())).setSeat(manager.getSeats()[(int)newSeat.getLayoutX()/50][(int)newSeat.getLayoutY()/25]);
-                                    manager.getSession(Integer.valueOf(ID.getText())).startReservation();
+                        // if the seat is available
+                        if (manager.getSeats()[i][j].getAvailable()) {
+                            newSeat.setStyle("-fx-background-color: MediumSeaGreen");
+                            gp.add(newSeat, manager.getSeats()[i][j].getColumn(), manager.getSeats()[i][j].getRowNumericalRepresentation());
 
-                                    //TODO allow for checkout and cancellation. make sure requests for these two are done through the queue
-                                    //TODO if someone ahead of you in queue has already reserved the seat tell them the seat is reserved and boot them
-                                    //TODO change button color depending on reserved status/whatnot
+                            // any seat will take you to a checkout window and automatically reserve it
+                            newSeat.setOnAction(new EventHandler<ActionEvent>() {
+                                @Override
+                                public void handle(ActionEvent event) {
+                                    try {
+                                        stage.setScene(checkOut);
+                                        manager.getSession(Integer.valueOf(ID.getText())).setSeat(manager.getSeats()[(int)newSeat.getLayoutX()/50][(int)newSeat.getLayoutY()/25]);
+                                        manager.getSession(Integer.valueOf(ID.getText())).startReservation();
+
+                                        //TODO allow for checkout and cancellation. make sure requests for these two are done through the queue
+                                        //TODO if someone ahead of you in queue has already reserved the seat tell them the seat is reserved and boot them
+                                        //TODO change button color depending on reserved status/whatnot
+                                    }
+                                    catch (Exception e) {
+                                        e.printStackTrace();
+                                    }
                                 }
-                                catch (Exception e) {
-                                    e.printStackTrace();
-                                }
-                            }
-                        });
+                            });
+                        }
+                        // if the seat isn't available
+                        else {
+                            newSeat.setStyle("-fx-background-color: DarkRed");
+                            gp.add(newSeat, manager.getSeats()[i][j].getColumn(), manager.getSeats()[i][j].getRowNumericalRepresentation());
+                        }
                     }
                 }
 
