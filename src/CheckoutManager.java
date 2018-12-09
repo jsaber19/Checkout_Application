@@ -24,7 +24,7 @@ public class CheckoutManager {
                 for(int k = 0; k <= j/25; k++){
                     row += (char)(j%25+65);
                 }
-                Seat temp = new Seat(row, i, (i < rowsVIP) ? true : false);
+                Seat temp = new Seat(row, i, (j < rowsVIP) ? true : false);
                 seatArray[i][j] = temp;
                 temp.setRowNumericalRepresentation(j);
             }

@@ -15,10 +15,10 @@ public class Seat extends Button {
     // constructor
     public Seat(String r, int c, boolean vip){
         super();
-        setAvailable(true);
         this.vip = vip;
         row = r;
         column = c;
+        this.setAvailable(true);
         this.setText(row + column);
         this.setMinSize(50, 25);
 
@@ -28,7 +28,11 @@ public class Seat extends Button {
     public void setAvailable(boolean x){
         available = x;
         if(available) {
-            this.setStyle("-fx-background-color: #c6c6c6; -fx-font-size: 10");
+            if(vip){
+                this.setStyle("-fx-background-color: #c67979; -fx-font-size: 10");
+            }else {
+                this.setStyle("-fx-background-color: #c6c6c6; -fx-font-size: 10");
+            }
         }else{
             this.setStyle("-fx-background-color: #707070; -fx-font-size: 10");
         }

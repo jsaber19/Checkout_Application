@@ -81,7 +81,7 @@ public class MainApplication extends Application {
         }
 
         // show first window
-        primaryStage.setTitle("Please select a seat. First 5 rows are VIP.");
+        primaryStage.setTitle("Please select a seat. Red rows are VIP.");
         primaryStage.setScene(new Scene(root,  manager.getSeatArray()[0][0].getMinWidth()*manager.getSeatArray().length, manager.getSeatArray()[0][0].getMinHeight()*manager.getSeatArray()[0].length, Color.GAINSBORO));
         primaryStage.show();
 
