@@ -16,7 +16,7 @@ public class CheckoutManager {
 
 
     // constructors
-    public CheckoutManager(int size){
+    public CheckoutManager(int size, int rowsVIP){
         seatArray = new Seat[size][size];
         for (int i = 0; i < seatArray.length; i++){
             for (int j = 0; j< seatArray[i].length; j++){
@@ -24,7 +24,7 @@ public class CheckoutManager {
                 for(int k = 0; k <= j/25; k++){
                     row += (char)(j%25+65);
                 }
-                Seat temp = new Seat(row, i);
+                Seat temp = new Seat(row, i, (i < rowsVIP) ? true : false);
                 seatArray[i][j] = temp;
                 temp.setRowNumericalRepresentation(j);
             }
@@ -52,8 +52,10 @@ public class CheckoutManager {
     }
 
     public CheckoutManager(){
-        this(25);
+        this(25, 0);
     }
+
+    public CheckoutManager(int size) { this(size, 0); }
 
 
     public Seat[][] getSeatArray(){

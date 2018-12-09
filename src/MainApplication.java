@@ -20,22 +20,35 @@ public class MainApplication extends Application {
 
     @Override
     public void start(Stage primaryStage){
-        CheckoutManager manager = new CheckoutManager();
+
+        CheckoutManager manager = new CheckoutManager(25, 5);
 
 
         // first window
-        Group root = new Group();
-        Button temp = new Button();
-        temp.setText("Please Select a Seat. ");
+        GridPane root = new GridPane();
 
-        CheckBox VIPCheck = new CheckBox(); // for VIP
-        VIPCheck.setTranslateX(325);
-
-        root.getChildren().add(temp);
-        root.getChildren().add(VIPCheck);
+        for (int i = 0; i < manager.getSeatArray().length; i++) {
+            for (int j = 0; j < manager.getSeatArray()[i].length; j++) {
+                Seat temp = manager.getSeatArray()[i][j];
+                root.add(temp, temp.getColumn(), temp.getRowNumericalRepresentation());
+                temp.setOnAction(new EventHandler<ActionEvent>() {
+                    @Override
+                    public void handle(ActionEvent event) {
+                        if(temp.getAvailable()) {
+                            Stage newStage = new Stage();
+                            newStage.setTitle("Confirm Order");
+                            newStage.setX(Math.random() * 600);
+                            newStage.setY(Math.random() * 200);
+                            newStage.setScene(//TODO);
+                            manager.startReservation(newStage.hashCode(), temp);
+                        }
+                    }
+                });
+            }
+        }
 
         // show first window
-        primaryStage.setTitle("Malicious Virus");
+        primaryStage.setTitle("Please select a seat. First 5 rows are VIP.");
         primaryStage.setScene(new Scene(root,  350, temp.getPrefHeight(), Color.GAINSBORO));
         primaryStage.show();
 
@@ -52,6 +65,45 @@ public class MainApplication extends Application {
         Group cRoot = new Group();
         Scene checkOut = new Scene(cRoot, 1250, 675);
 
-        //FIXME see what else we can move out to make it less laggy
+        /*
+        for (int i = 0; i < manager.getSeats().length; i++){
+                    for (int j = 0; j<manager.getSeats()[i].length; j++){
+                        Button newSeat = new Button();
+                        newSeat.setTextOverrun(OverrunStyle.CLIP);
+                        newSeat.setText("" + manager.getSeats()[i][j].getRow() + manager.getSeats()[i][j].getColumn());
+                        newSeat.setPrefSize(50, 25);
+
+                        // if the seat is available
+                        if (manager.getSeats()[i][j].getAvailable()) {
+                            newSeat.setStyle("-fx-background-color: MediumSeaGreen");
+                            gp.add(newSeat, manager.getSeats()[i][j].getColumn(), manager.getSeats()[i][j].getRowNumericalRepresentation());
+
+                            // any seat will take you to a checkout window and automatically reserve it
+                            newSeat.setOnAction(new EventHandler<ActionEvent>() {
+                                @Override
+                                public void handle(ActionEvent event) {
+                                    try {
+                                        stage.setScene(checkOut);
+                                        manager.getSession(Integer.valueOf(ID.getText())).setSeat(manager.getSeats()[(int)newSeat.getLayoutX()/50][(int)newSeat.getLayoutY()/25]);
+                                        manager.getSession(Integer.valueOf(ID.getText())).startReservation();
+
+                                        //TODO allow for checkout and cancellation. make sure requests for these two are done through the queue
+                                        //TODO if someone ahead of you in queue has already reserved the seat tell them the seat is reserved and boot them
+                                        //TODO change button color depending on reserved status/whatnot
+                                    }
+                                    catch (Exception e) {
+                                        e.printStackTrace();
+                                    }
+                                }
+                            });
+                        }
+                        // if the seat isn't available
+                        else {
+                            newSeat.setStyle("-fx-background-color: DarkRed");
+                            gp.add(newSeat, manager.getSeats()[i][j].getColumn(), manager.getSeats()[i][j].getRowNumericalRepresentation());
+                        }
+                    }
+                }
+         */
     }
 }
