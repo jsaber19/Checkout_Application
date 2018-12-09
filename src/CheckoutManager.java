@@ -1,6 +1,9 @@
 import java.util.Hashtable;
 
 public class CheckoutManager {
+    // fields
+
+    // 8 queues for tracking hashcodes and seats
     public BuyerQueue<Integer> reserve;
     public BuyerQueue<Integer> reserveVIP;
     public BuyerQueue<Integer> checkout;
@@ -10,8 +13,10 @@ public class CheckoutManager {
     public BuyerQueue<Seat> seatQueue;
     public BuyerQueue<Seat> seatQueueVIP;
 
+    // a hashtable for linking seats and their corresponding checkout windows' hashcodes
     public Hashtable<Integer, Seat> seatHashTable;
 
+    // 2D array for all the seats
     private Seat[][] seatArray;
 
 
@@ -24,6 +29,7 @@ public class CheckoutManager {
                 for(int k = 0; k <= j/25; k++){
                     row += (char)(j%25+65);
                 }
+                // if the seat is in the first rowsVIP rows, then make that seat VIP
                 Seat temp = new Seat(row, i, (j < rowsVIP) ? true : false);
                 seatArray[i][j] = temp;
                 temp.setRowNumericalRepresentation(j);
@@ -54,19 +60,19 @@ public class CheckoutManager {
 
         seatHashTable = new Hashtable<>();
     }
-
     public CheckoutManager(){
         this(25, 0);
     }
-
     public CheckoutManager(int size) { this(size, 0); }
 
-
+    // getter for seatArray
     public Seat[][] getSeatArray(){
         return seatArray;
     }
 
+    // sends request for a seat to be reserved; stores the seat and its checkout window in correct queues
     public void startReservation(Integer newWindowHashcode, Seat selectedSeat){
+        // seats' requests sent to different queues depending on whether VIP or not
         if(selectedSeat.isVIP()){
             reserveVIP.add(newWindowHashcode);
             seatQueueVIP.add(selectedSeat);
@@ -76,7 +82,9 @@ public class CheckoutManager {
         }
     }
 
+    // processes reservation request; sets seat to unavailable, links the seat and its checkout window in hashtable, removes it from reserve queue
     private void reserve(){
+        // differentiate between VIP or not
         if(!reserveVIP.isEmpty()){
             Seat temp = seatQueueVIP.poll();
             seatHashTable.put(reserveVIP.poll(), temp);
@@ -88,7 +96,9 @@ public class CheckoutManager {
         }
     }
 
+    // sends request for seats to be purchased after having been reserved, stores seat's window's hashcode in correct checkout queue
     public void startCheckout(Integer windowHashCode){
+        // VIP or not
         if(seatHashTable.get(windowHashCode).isVIP()){
             checkoutVIP.add(windowHashCode);
         }else{
@@ -96,7 +106,10 @@ public class CheckoutManager {
         }
     }
 
+    // completes purchase request by removing the seat's window's hashcode from checkout queue startCheckout() added it to
+    // does not change the seats availability status so the seat stays permanently unavailable
     private void checkout(){
+        // vip or not
         if(!checkoutVIP.isEmpty()){
             checkoutVIP.poll();
         }else if (!checkout.isEmpty()){
@@ -104,7 +117,9 @@ public class CheckoutManager {
         }
     }
 
+    // sends a request to cancel a reservation; adds seat's window's hashcode to cancel queue
     public void startCancel(Integer windowHashCode){
+        // vip or not
         if(seatHashTable.get(windowHashCode).isVIP()){
             cancelVIP.add(windowHashCode);
         }else{
@@ -112,6 +127,7 @@ public class CheckoutManager {
         }
     }
 
+    // cancels a reservation for a seat by setting its availability to true again and removes it from the queue for being canceled
     private void cancel(){
         if(!cancelVIP.isEmpty()){
             seatHashTable.get(cancelVIP.poll()).setAvailable(true);
@@ -120,6 +136,7 @@ public class CheckoutManager {
         }
     }
 
+    // method that will be run concurrently to other processes to cycle through queues and process requests for reserving, purchasing or canceling
     public void update(){
         reserve();
         checkout();

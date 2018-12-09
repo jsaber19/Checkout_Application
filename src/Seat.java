@@ -3,9 +3,10 @@ import javafx.scene.layout.Background;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.Paint;
 
-// class whose object represents a seat
+// class whose object represents a seat and is also a button
 public class Seat extends Button {
 
+    // fields for row, column, availability, and VIP status
     private String row;
     private int rowNumericalRepresentation; // for arrays/referencing
     private int column;
@@ -14,7 +15,7 @@ public class Seat extends Button {
 
     // constructor
     public Seat(String r, int c, boolean vip){
-        super();
+        super(); // button constructor
         this.vip = vip;
         row = r;
         column = c;
@@ -25,9 +26,12 @@ public class Seat extends Button {
     }
 
     // getters and setters
+
     public void setAvailable(boolean x){
         available = x;
+        // set the color of the button also to match whether it's available
         if(available) {
+            // color vip seats differently when they're available
             if(vip){
                 this.setStyle("-fx-background-color: #c67979; -fx-font-size: 10");
             }else {
