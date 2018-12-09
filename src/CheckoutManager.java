@@ -38,6 +38,8 @@ public class CheckoutManager {
         seatQueue = new BuyerQueue<>();
         seatQueueVIP = new BuyerQueue<>();
 
+        seatHashTable = new Hashtable<>();
+
     }
     public CheckoutManager(Seat[][] seatArray){
         this.seatArray = seatArray;
@@ -49,6 +51,8 @@ public class CheckoutManager {
         cancelVIP = new BuyerQueue<>();
         seatQueue = new BuyerQueue<>();
         seatQueueVIP = new BuyerQueue<>();
+
+        seatHashTable = new Hashtable<>();
     }
 
     public CheckoutManager(){
@@ -110,10 +114,16 @@ public class CheckoutManager {
 
     private void cancel(){
         if(!cancelVIP.isEmpty()){
-            seatHashTable.get(cancelVIP.poll()).setAvailable(false);
+            seatHashTable.get(cancelVIP.poll()).setAvailable(true);
         }else if (!cancel.isEmpty()){
-            seatHashTable.get(cancel.poll()).setAvailable(false);
+            seatHashTable.get(cancel.poll()).setAvailable(true);
         }
+    }
+
+    public void update(){
+        reserve();
+        checkout();
+        cancel();
     }
 
 

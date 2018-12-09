@@ -1,3 +1,5 @@
+import javafx.animation.KeyFrame;
+import javafx.animation.Timeline;
 import javafx.application.Application;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
@@ -8,10 +10,17 @@ import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.OverrunStyle;
 import javafx.scene.layout.GridPane;
+import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
+import javafx.util.Duration;
+
+import java.util.Arrays;
+import java.util.Calendar;
+import java.util.Timer;
+import java.util.TimerTask;
 
 // actual class to run that has windows
 public class MainApplication extends Application {
@@ -19,29 +28,53 @@ public class MainApplication extends Application {
     public static void main(String[] args) { launch(args); }
 
     @Override
-    public void start(Stage primaryStage){
+    public void start(Stage primaryStage) throws InterruptedException {
 
         CheckoutManager manager = new CheckoutManager(25, 5);
 
 
-        // first window
-        GridPane root = new GridPane();
 
+        // first window stuff
+        GridPane root = new GridPane();
         for (int i = 0; i < manager.getSeatArray().length; i++) {
             for (int j = 0; j < manager.getSeatArray()[i].length; j++) {
                 Seat temp = manager.getSeatArray()[i][j];
                 root.add(temp, temp.getColumn(), temp.getRowNumericalRepresentation());
-                temp.setOnAction(new EventHandler<ActionEvent>() {
-                    @Override
-                    public void handle(ActionEvent event) {
-                        if(temp.getAvailable()) {
-                            Stage newStage = new Stage();
-                            newStage.setTitle("Confirm Order");
-                            newStage.setX(Math.random() * 600);
-                            newStage.setY(Math.random() * 200);
-                            newStage.setScene(//TODO);
-                            manager.startReservation(newStage.hashCode(), temp);
-                        }
+                temp.setOnAction(event -> {
+                    if(temp.getAvailable()) {
+                        VBox checkoutScreen = new VBox();
+                        Button checkout = new Button();
+                        Button cancel = new Button();
+
+                        checkout.setText("Checkout");
+                        cancel.setText("Cancel");
+
+                        checkout.setPrefSize(200, 50);
+                        cancel.setPrefSize(200, 50);
+                        checkoutScreen.getChildren().addAll(Arrays.asList(checkout, cancel));
+
+                        Stage newStage = new Stage();
+                        newStage.setTitle("Confirm Order");
+                        newStage.setX(Math.random() * 600);
+                        newStage.setY(Math.random() * 200);
+                        newStage.setScene(new Scene(checkoutScreen, 200, 100));
+                        newStage.setResizable(false);
+                        newStage.show();
+                        manager.startReservation(newStage.hashCode(), temp);
+
+                        newStage.setOnCloseRequest(event0 -> manager.startCancel(newStage.hashCode()));
+
+                        checkout.setOnAction(event1 -> {
+                            manager.startCheckout(newStage.hashCode());
+                            newStage.close();
+
+                        });
+
+                        cancel.setOnAction(event2 -> {
+                            manager.startCancel(newStage.hashCode());
+                            newStage.close();
+
+                        });
                     }
                 });
             }
@@ -49,21 +82,21 @@ public class MainApplication extends Application {
 
         // show first window
         primaryStage.setTitle("Please select a seat. First 5 rows are VIP.");
-        primaryStage.setScene(new Scene(root,  350, temp.getPrefHeight(), Color.GAINSBORO));
+        primaryStage.setScene(new Scene(root,  manager.getSeatArray()[0][0].getMinWidth()*manager.getSeatArray().length, manager.getSeatArray()[0][0].getMinHeight()*manager.getSeatArray()[0].length, Color.GAINSBORO));
         primaryStage.show();
 
+        //stolen from https://stackoverflow.com/questions/9966136/javafx-periodic-background-task
+        new Timer().schedule(
+                new TimerTask() {
 
-        // second window
-        Stage stage = new Stage();
-        stage.setResizable(false);
-        stage.setTitle("Your Session");
-        stage.setX(Math.random()*600);
-        stage.setY(Math.random()*200);
+                    @Override
+                    public void run() {
+                        manager.update();
+                    }
+                }, 0, 10);
 
 
-        // third window
-        Group cRoot = new Group();
-        Scene checkOut = new Scene(cRoot, 1250, 675);
+
 
         /*
         for (int i = 0; i < manager.getSeats().length; i++){

@@ -19,15 +19,18 @@ public class Seat extends Button {
         this.vip = vip;
         row = r;
         column = c;
+        this.setText(row + column);
+        this.setMinSize(50, 25);
+
     }
 
     // getters and setters
     public void setAvailable(boolean x){
         available = x;
         if(available) {
-            this.setStyle("-fx-background-color: #c6c6c6");
+            this.setStyle("-fx-background-color: #c6c6c6; -fx-font-size: 10");
         }else{
-            this.setStyle("-fx-background-color: #707070");
+            this.setStyle("-fx-background-color: #707070; -fx-font-size: 10");
         }
     }
 
