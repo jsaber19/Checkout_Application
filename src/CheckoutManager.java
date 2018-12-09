@@ -1,109 +1,130 @@
-import java.util.ArrayList;
+import java.util.Hashtable;
 
 public class CheckoutManager {
-    public BuyerQueue<Session> normalQ;
-    public BuyerQueue<Session> VIPQ;
-    private ArrayList<Session> allSessions = new ArrayList<>();
-    private Seat[][] seats;
+    public BuyerQueue<Integer> reserve;
+    public BuyerQueue<Integer> reserveVIP;
+    public BuyerQueue<Integer> checkout;
+    public BuyerQueue<Integer> checkoutVIP;
+    public BuyerQueue<Integer> cancel;
+    public BuyerQueue<Integer> cancelVIP;
+    public BuyerQueue<Seat> seatQueue;
+    public BuyerQueue<Seat> seatQueueVIP;
+
+    public Hashtable<Integer, Seat> seatHashTable;
+
+    private Seat[][] seatArray;
 
 
     // constructors
-    public CheckoutManager(){
-        seats = new Seat[25][25];
-        for (int i = 0; i < seats.length; i++){
-            for (int j = 0; j<seats[i].length; j++){
+    public CheckoutManager(int size, int rowsVIP){
+        seatArray = new Seat[size][size];
+        for (int i = 0; i < seatArray.length; i++){
+            for (int j = 0; j< seatArray[i].length; j++){
                 String row = "";
                 for(int k = 0; k <= j/25; k++){
                     row += (char)(j%25+65);
                 }
-                seats[i][j] = new Seat(row, i);
-                seats[i][j].setRowNumericalRepresentation(j);
+                Seat temp = new Seat(row, i, (j < rowsVIP) ? true : false);
+                seatArray[i][j] = temp;
+                temp.setRowNumericalRepresentation(j);
             }
         }
+        reserve = new BuyerQueue<>();
+        reserveVIP = new BuyerQueue<>();
+        checkout = new BuyerQueue<>();
+        checkoutVIP = new BuyerQueue<>();
+        cancel = new BuyerQueue<>();
+        cancelVIP = new BuyerQueue<>();
+        seatQueue = new BuyerQueue<>();
+        seatQueueVIP = new BuyerQueue<>();
 
-        normalQ = new BuyerQueue<Session>();
-        VIPQ = new BuyerQueue<Session>();
+        seatHashTable = new Hashtable<>();
+
     }
-    public CheckoutManager(Seat[][] seats){
-        this.seats = seats;
+    public CheckoutManager(Seat[][] seatArray){
+        this.seatArray = seatArray;
+        reserve = new BuyerQueue<>();
+        reserveVIP = new BuyerQueue<>();
+        checkout = new BuyerQueue<>();
+        checkoutVIP = new BuyerQueue<>();
+        cancel = new BuyerQueue<>();
+        cancelVIP = new BuyerQueue<>();
+        seatQueue = new BuyerQueue<>();
+        seatQueueVIP = new BuyerQueue<>();
 
-        normalQ = new BuyerQueue<Session>();
-        VIPQ = new BuyerQueue<Session>();
+        seatHashTable = new Hashtable<>();
     }
 
-    // updates the session depending on its queued up action
-    public void update() throws Exception{
-        // checks whether session is VIP or not
-        // TODO: put this in some while loop somewhere? this is the bulk of the logic for the actual queue use
-        Session curr = null;
-        if(!VIPQ.isEmpty()) {
-             curr = VIPQ.poll();
-        }else if(!normalQ.isEmpty()){
-            curr = normalQ.poll();
+    public CheckoutManager(){
+        this(25, 0);
+    }
+
+    public CheckoutManager(int size) { this(size, 0); }
+
+
+    public Seat[][] getSeatArray(){
+        return seatArray;
+    }
+
+    public void startReservation(Integer newWindowHashcode, Seat selectedSeat){
+        if(selectedSeat.isVIP()){
+            reserveVIP.add(newWindowHashcode);
+            seatQueueVIP.add(selectedSeat);
+        }else{
+            reserve.add(newWindowHashcode);
+            seatQueue.add(selectedSeat);
         }
+    }
 
-        // completes the queued up action
-        switch (curr.getActionType()){
-            case RESERVING:
-                reserveSeat(curr);
-                break;
-            case PURCHASING:
-                completePurchase(curr);
-                break;
-            case CANCELING:
-                cancelReservation(curr);
-                break;
-            default:
-                throw new Exception("No action set in current session");
+    private void reserve(){
+        if(!reserveVIP.isEmpty()){
+            Seat temp = seatQueueVIP.poll();
+            seatHashTable.put(reserveVIP.poll(), temp);
+            temp.setAvailable(false);
+        }else if (!reserve.isEmpty()){
+            Seat temp = seatQueue.poll();
+            seatHashTable.put(reserve.poll(), temp);
+            temp.setAvailable(false);
         }
     }
 
-    // tracks session so checkoutmanager object can communicate with windows
-    public int add(Session session){
-        allSessions.add(session);
-        return allSessions.size() - 1;
-    }
-    public Session getSession(int id){
-        return allSessions.get(id);
-    }
-
-    // puts session in either VIP or normal Q
-    public boolean resolve(Session sessionId){
-        if (sessionId.getIsVIP()){
-            VIPQ.add(sessionId);
+    public void startCheckout(Integer windowHashCode){
+        if(seatHashTable.get(windowHashCode).isVIP()){
+            checkoutVIP.add(windowHashCode);
+        }else{
+            checkout.add(windowHashCode);
         }
-        normalQ.add(sessionId);
-        return true;
     }
 
-
-    public Seat[][] getSeats(){
-        return seats;
-    }
-
-    public boolean isFull(){
-        for (Seat[] arr : seats){
-            for (Seat s : arr){
-                if (s.getAvailable()) return false;
-            }
+    private void checkout(){
+        if(!checkoutVIP.isEmpty()){
+            checkoutVIP.poll();
+        }else if (!checkout.isEmpty()){
+            checkout.poll();
         }
-        return true;
     }
 
-    public boolean reserveSeat(Session sessionId){
-        sessionId.seat.setAvailable(false);
-        return true;
-    }
-    public boolean completePurchase(Session sessionId){
-        //TODO nothing because this is complete
-        return true;
-    }
-    public boolean cancelReservation(Session sessionId){
-        sessionId.seat.setAvailable(true);
-        return true;
+    public void startCancel(Integer windowHashCode){
+        if(seatHashTable.get(windowHashCode).isVIP()){
+            cancelVIP.add(windowHashCode);
+        }else{
+            cancel.add(windowHashCode);
+        }
     }
 
-    // TODO: main class with main app window that will open session windows through some button – will also take care of reserving seats
-    // TODO: while loop for session making button in main class whose condition for running is that there are still available seats
+    private void cancel(){
+        if(!cancelVIP.isEmpty()){
+            seatHashTable.get(cancelVIP.poll()).setAvailable(true);
+        }else if (!cancel.isEmpty()){
+            seatHashTable.get(cancel.poll()).setAvailable(true);
+        }
+    }
+
+    public void update(){
+        reserve();
+        checkout();
+        cancel();
+    }
+
 
 }
